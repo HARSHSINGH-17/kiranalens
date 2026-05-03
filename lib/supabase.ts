@@ -17,6 +17,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     return null;
   }
 
+  // Cache by URL; if the key changes, a process restart is required to refresh.
   const configKey = supabaseUrl;
   const cache = (globalSupabase.__supabaseClientCache ??= {});
 
