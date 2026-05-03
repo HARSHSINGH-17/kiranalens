@@ -42,6 +42,8 @@ limiter = Limiter(
     default_limits=["1000 per hour"]  # Global fallback limit
 )
 
+IS_TEST_ENV = settings.ENVIRONMENT == "test"
+
 
 def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
     """
@@ -72,35 +74,35 @@ def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
 # Rate limiting decorators for different endpoint types
 def rate_limit_auth_login():
     """Rate limit for login endpoint: 10 requests/minute per IP"""
-    if settings.ENVIRONMENT == "test":
+    if IS_TEST_ENV:
         return limiter.exempt
     return limiter.limit("10/minute", key_func=get_ip_address)
 
 
 def rate_limit_auth_register():
     """Rate limit for register endpoint: 5 requests/minute per IP"""
-    if settings.ENVIRONMENT == "test":
+    if IS_TEST_ENV:
         return limiter.exempt
     return limiter.limit("5/minute", key_func=get_ip_address)
 
 
 def rate_limit_assessments():
     """Rate limit for assessment creation: 30 requests/hour per authenticated user"""
-    if settings.ENVIRONMENT == "test":
+    if IS_TEST_ENV:
         return limiter.exempt
     return limiter.limit("30/hour", key_func=get_user_id_or_ip)
 
 
 def rate_limit_get_endpoints():
     """Rate limit for GET endpoints: 100 requests/minute per IP"""
-    if settings.ENVIRONMENT == "test":
+    if IS_TEST_ENV:
         return limiter.exempt
     return limiter.limit("100/minute", key_func=get_ip_address)
 
 
 def rate_limit_general():
     """General rate limit for other endpoints: 200 requests/hour per IP"""
-    if settings.ENVIRONMENT == "test":
+    if IS_TEST_ENV:
         return limiter.exempt
     return limiter.limit("200/hour", key_func=get_ip_address)
 
