@@ -10,6 +10,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.util import get_remote_address
 from starlette.responses import JSONResponse
 
+from app.config import settings
 from app.dependencies import get_current_user_optional
 
 
@@ -46,7 +47,12 @@ def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
     """
     Custom rate limit exceeded handler that returns structured JSON response.
     """
-    retry_after = int(exc.retry_after) if exc.retry_after else 60
+    retry_after = getattr(exc, "retry_after", None)
+    if retry_after is None:
+        reset_time = getattr(exc, "reset_time", None)
+        if reset_time:
+            retry_after = int(max(reset_time - time.time(), 1))
+    retry_after = int(retry_after) if retry_after else 60
     
     response = JSONResponse(
         status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -66,26 +72,36 @@ def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
 # Rate limiting decorators for different endpoint types
 def rate_limit_auth_login():
     """Rate limit for login endpoint: 10 requests/minute per IP"""
+    if settings.ENVIRONMENT == "test":
+        return limiter.exempt
     return limiter.limit("10/minute", key_func=get_ip_address)
 
 
 def rate_limit_auth_register():
     """Rate limit for register endpoint: 5 requests/minute per IP"""
+    if settings.ENVIRONMENT == "test":
+        return limiter.exempt
     return limiter.limit("5/minute", key_func=get_ip_address)
 
 
 def rate_limit_assessments():
     """Rate limit for assessment creation: 30 requests/hour per authenticated user"""
+    if settings.ENVIRONMENT == "test":
+        return limiter.exempt
     return limiter.limit("30/hour", key_func=get_user_id_or_ip)
 
 
 def rate_limit_get_endpoints():
     """Rate limit for GET endpoints: 100 requests/minute per IP"""
+    if settings.ENVIRONMENT == "test":
+        return limiter.exempt
     return limiter.limit("100/minute", key_func=get_ip_address)
 
 
 def rate_limit_general():
     """General rate limit for other endpoints: 200 requests/hour per IP"""
+    if settings.ENVIRONMENT == "test":
+        return limiter.exempt
     return limiter.limit("200/hour", key_func=get_ip_address)
 
 
