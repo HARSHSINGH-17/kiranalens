@@ -35,7 +35,7 @@ const authService = {
    * Login user with email and password
    */
   async login(email: string, password: string): Promise<LoginResponse> {
-    const response = await apiClient.post<LoginResponse>('/api/v1/auth/login', {
+    const response = await apiClient.post<LoginResponse>('/auth/login', {
       email,
       password,
     });
@@ -46,7 +46,7 @@ const authService = {
    * Register new user
    */
   async register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await apiClient.post<RegisterResponse>('/api/v1/auth/register', data);
+    const response = await apiClient.post<RegisterResponse>('/auth/register', data);
     return response.data;
   },
 
@@ -54,7 +54,7 @@ const authService = {
    * Refresh access token
    */
   async refreshToken(): Promise<RefreshTokenResponse> {
-    const response = await apiClient.post<RefreshTokenResponse>('/api/v1/auth/refresh');
+    const response = await apiClient.post<RefreshTokenResponse>('/auth/refresh');
     return response.data;
   },
 
@@ -63,7 +63,7 @@ const authService = {
    */
   async logout(): Promise<void> {
     try {
-      await apiClient.post('/api/v1/auth/logout');
+      await apiClient.post('/auth/logout');
     } catch (error) {
       // Ignore logout errors - we'll clear local state anyway
       console.error('Logout error:', error);
