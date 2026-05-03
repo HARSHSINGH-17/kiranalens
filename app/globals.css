@@ -21,8 +21,9 @@
     --color-gray-900: 17 24 39;
     
     /* Fonts */
-    --font-heading: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    --font-body: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-system: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    --font-heading: var(--font-system);
+    --font-body: var(--font-system);
   }
 
   * {

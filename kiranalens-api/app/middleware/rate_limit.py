@@ -68,11 +68,14 @@ def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONR
 
 def _get_retry_after_seconds(exc: RateLimitExceeded) -> int:
     retry_after = getattr(exc, "retry_after", None)
-    if retry_after is None:
-        reset_time = getattr(exc, "reset_time", None)
-        if reset_time:
-            retry_after = int(max(reset_time - time.time(), 1))
-    return int(retry_after) if retry_after else 60
+    if retry_after:
+        return int(retry_after)
+
+    reset_time = getattr(exc, "reset_time", None)
+    if reset_time:
+        return int(max(reset_time - time.time(), 1))
+
+    return 60
 
 
 # Rate limiting decorators for different endpoint types

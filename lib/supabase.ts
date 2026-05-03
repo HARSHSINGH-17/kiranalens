@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 type SupabaseGlobalCache = {
@@ -18,9 +17,7 @@ export function getSupabaseClient(): SupabaseClient | null {
     return null;
   }
 
-  const configKey = createHash('sha256')
-    .update(`${supabaseUrl}:${supabaseKey}`)
-    .digest('hex');
+  const configKey = supabaseUrl;
   const cache = (globalSupabase.__supabaseClientCache ??= {});
 
   if (cache.client && cache.configKey === configKey) {
