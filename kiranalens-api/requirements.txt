@@ -31,6 +31,7 @@ bleach
 # Configuration and validation
 pydantic-settings
 pydantic
+email-validator
 
 # Development and testing (optional)
 pytest

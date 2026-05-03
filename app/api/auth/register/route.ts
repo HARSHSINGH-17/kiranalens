@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -20,6 +20,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { detail: 'Password must be at least 8 characters' },
         { status: 400 }
+      );
+    }
+
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { detail: 'Supabase is not configured' },
+        { status: 500 }
       );
     }
 

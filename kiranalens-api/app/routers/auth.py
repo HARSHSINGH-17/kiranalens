@@ -42,7 +42,7 @@ async def register_user(
         409: Email already registered
     """
     # Sanitize string inputs
-    request_data.full_name = sanitize_string_input(request_data.full_name)
+    request_data.name = sanitize_string_input(request_data.name)
     request_data.organisation = sanitize_string_input(request_data.organisation)
     
     user = await AuthService.register_user(db, request_data)

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.SECRET_KEY || 'kiranalens-secret-key-2024';
@@ -26,6 +26,14 @@ export async function GET(
     return NextResponse.json({ detail: 'Unauthorized' }, { status: 401 });
   }
 
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json(
+      { detail: 'Supabase is not configured' },
+      { status: 500 }
+    );
+  }
+
   const { data, error } = await supabase
     .from('assessments')
     .select('*')
@@ -48,6 +56,14 @@ export async function DELETE(
   const userId = getUserIdFromRequest(req);
   if (!userId) {
     return NextResponse.json({ detail: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json(
+      { detail: 'Supabase is not configured' },
+      { status: 500 }
+    );
   }
 
   const { error } = await supabase

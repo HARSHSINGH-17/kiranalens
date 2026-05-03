@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.SECRET_KEY || 'kiranalens-secret-key-2024';
@@ -21,6 +21,14 @@ export async function GET(req: NextRequest) {
   const userId = getUserIdFromRequest(req);
   if (!userId) {
     return NextResponse.json({ detail: 'Unauthorized' }, { status: 401 });
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return NextResponse.json(
+      { detail: 'Supabase is not configured' },
+      { status: 500 }
+    );
   }
 
   const { data, error } = await supabase
@@ -51,6 +59,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const supabase = getSupabaseClient();
+    if (!supabase) {
+      return NextResponse.json(
+        { detail: 'Supabase is not configured' },
+        { status: 500 }
+      );
+    }
+
     const body = await req.json();
 
     // Generate random AI scores for demo
