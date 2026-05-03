@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createFallbackUser, getFallbackUser } from '@/lib/fallbackAuthStore';
 import { getSupabaseClient } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -7,7 +8,8 @@ const JWT_SECRET = process.env.SECRET_KEY || 'kiranalens-secret-key-2024';
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, name, organisation } = await req.json();
+    const { email, password, name, organisation, organization } = await req.json();
+    const organisationValue = organisation ?? organization ?? null;
 
     if (!email || !password || !name) {
       return NextResponse.json(
@@ -25,10 +27,40 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseClient();
     if (!supabase) {
-      return NextResponse.json(
-        { detail: 'Supabase is not configured' },
-        { status: 500 }
+      const existingUser = getFallbackUser(email);
+      if (existingUser) {
+        return NextResponse.json(
+          { detail: 'An account with this email already exists' },
+          { status: 409 }
+        );
+      }
+
+      const newUser = await createFallbackUser({
+        email,
+        name,
+        organisation: organisationValue,
+        password,
+      });
+
+      const token = jwt.sign(
+        { userId: newUser.id, email: newUser.email, role: newUser.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
       );
+
+      return NextResponse.json({
+        access_token: token,
+        refresh_token: token,
+        token_type: 'bearer',
+        user: {
+          id: newUser.id,
+          email: newUser.email,
+          name: newUser.name,
+          role: newUser.role,
+          organisation: newUser.organisation,
+          created_at: newUser.created_at,
+        },
+      });
     }
 
     // Check if user already exists
@@ -54,7 +86,7 @@ export async function POST(req: NextRequest) {
       .insert({
         email: email.toLowerCase(),
         name,
-        organisation: organisation || null,
+        organisation: organisationValue,
         password_hash: passwordHash,
         role: 'credit_officer',
       })

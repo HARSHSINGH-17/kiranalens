@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getFallbackUser } from '@/lib/fallbackAuthStore';
 import { getSupabaseClient } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -15,10 +16,35 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseClient();
     if (!supabase) {
-      return NextResponse.json(
-        { detail: 'Supabase is not configured' },
-        { status: 500 }
+      const fallbackUser = getFallbackUser(email);
+      if (!fallbackUser) {
+        return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });
+      }
+
+      const passwordMatch = await bcrypt.compare(password, fallbackUser.password_hash);
+      if (!passwordMatch) {
+        return NextResponse.json({ detail: 'Invalid email or password' }, { status: 401 });
+      }
+
+      const token = jwt.sign(
+        { userId: fallbackUser.id, email: fallbackUser.email, role: fallbackUser.role },
+        JWT_SECRET,
+        { expiresIn: '7d' }
       );
+
+      return NextResponse.json({
+        access_token: token,
+        refresh_token: token,
+        token_type: 'bearer',
+        user: {
+          id: fallbackUser.id,
+          email: fallbackUser.email,
+          name: fallbackUser.name,
+          role: fallbackUser.role,
+          organisation: fallbackUser.organisation,
+          created_at: fallbackUser.created_at,
+        },
+      });
     }
 
     // Look up user in Supabase
