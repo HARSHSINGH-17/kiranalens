@@ -2,8 +2,8 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 import { camelizeKeys, decamelizeKeys } from 'humps';
 
-// Always use local Next.js API routes (backed by Supabase)
-const USE_MOCK_BACKEND = false;
+// Toggle this to switch between mock backend and real Supabase-backed API
+const USE_MOCK_BACKEND = true;
 
 // Create axios instance pointing at our own Next.js API routes
 const apiClient = axios.create({
