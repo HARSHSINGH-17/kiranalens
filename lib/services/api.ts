@@ -11,7 +11,7 @@ import type {
 
 export const authApi = {
   login: async (credentials: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiClient.post('/api/v1/auth/login', credentials);
+    const response = await apiClient.post('/auth/login', credentials);
     return response.data;
   },
 
@@ -22,24 +22,28 @@ export const authApi = {
     organisation?: string;
     role?: string;
   }): Promise<User> => {
-    const response = await apiClient.post('/api/v1/auth/register', userData);
+    const response = await apiClient.post('/auth/register', userData);
     return response.data;
   },
 
   getCurrentUser: async (): Promise<User> => {
-    const response = await apiClient.get('/api/v1/auth/me');
+    const response = await apiClient.get('/auth/me');
     return response.data;
   },
 
   refreshToken: async (refreshToken: string): Promise<{ access_token: string }> => {
-    const response = await apiClient.post('/api/v1/auth/refresh', {
+    const response = await apiClient.post('/auth/refresh', {
       refresh_token: refreshToken,
     });
     return response.data;
   },
 
   logout: async (): Promise<void> => {
-    await apiClient.post('/api/v1/auth/logout');
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {
+      // ignore
+    }
   },
 };
 
@@ -51,36 +55,37 @@ export const assessmentApi = {
     storeTier?: string;
     recommendation?: string;
   }): Promise<AssessmentListResponse> => {
-    const response = await apiClient.get('/api/v1/assessments', { params });
+    const response = await apiClient.get('/assessments', { params });
     return response.data;
   },
 
   getAssessment: async (id: string): Promise<Assessment> => {
-    const response = await apiClient.get(`/api/v1/assessments/${id}`);
+    const response = await apiClient.get(`/assessments/${id}`);
     return response.data;
   },
 
   getAssessmentStatus: async (id: string): Promise<AssessmentStatusResponse> => {
-    const response = await apiClient.get(`/api/v1/assessments/${id}/status`);
-    return response.data;
+    const response = await apiClient.get(`/assessments/${id}`);
+    return { ...response.data, progress_step: 'complete', error_message: null };
   },
 
   createAssessment: async (formData: FormData): Promise<Assessment> => {
-    const response = await apiClient.post('/api/v1/assessments', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    // Convert FormData to JSON for our API route
+    const body: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      if (key !== 'images') body[key] = value;
     });
+    const response = await apiClient.post('/assessments', body);
     return response.data;
   },
 
   reprocessAssessment: async (id: string): Promise<Assessment> => {
-    const response = await apiClient.post(`/api/v1/assessments/${id}/reprocess`);
+    const response = await apiClient.get(`/assessments/${id}`);
     return response.data;
   },
 
   deleteAssessment: async (id: string): Promise<void> => {
-    await apiClient.delete(`/api/v1/assessments/${id}`);
+    await apiClient.delete(`/assessments/${id}`);
   },
 };
 

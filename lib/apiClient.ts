@@ -2,12 +2,12 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import toast from 'react-hot-toast';
 import { camelizeKeys, decamelizeKeys } from 'humps';
 
-// Check if we should use mock backend
-const USE_MOCK_BACKEND = process.env.NEXT_PUBLIC_USE_MOCK === 'true' || !process.env.NEXT_PUBLIC_API_URL;
+// Always use local Next.js API routes (backed by Supabase)
+const USE_MOCK_BACKEND = false;
 
-// Create axios instance
+// Create axios instance pointing at our own Next.js API routes
 const apiClient = axios.create({
-  baseURL: USE_MOCK_BACKEND ? 'http://mock-backend' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'),
+  baseURL: '/api',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
