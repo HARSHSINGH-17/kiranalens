@@ -187,17 +187,15 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Demo Mode Toggle - Only in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <button
-          onClick={fillDemoCredentials}
-          className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium transition-colors z-50"
-          title="Fill demo credentials for testing"
-        >
-          <TestTube size={16} />
-          Demo Mode
-        </button>
-      )}
+      {/* Demo Mode Button */}
+      <button
+        onClick={fillDemoCredentials}
+        className="fixed bottom-4 left-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 text-sm font-medium transition-colors z-50"
+        title="Fill demo credentials for testing"
+      >
+        <TestTube size={16} />
+        Demo Credentials
+      </button>
     </div>
   );
 }

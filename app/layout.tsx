@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
-import TopBar from "@/components/layout/TopBar";
+import AppLayout from "@/components/layout/AppLayout";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { ToastProvider } from "@/components/providers/ToastProvider";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -37,15 +36,9 @@ export default function RootLayout({
         <ErrorBoundary>
           <QueryProvider>
             <ToastProvider />
-            <div className="flex h-screen overflow-hidden">
-              <Sidebar />
-              <div className="flex-1 flex flex-col lg:ml-64">
-                <TopBar />
-                <main className="flex-1 overflow-y-auto bg-gray-50">
-                  {children}
-                </main>
-              </div>
-            </div>
+            <AppLayout>
+              {children}
+            </AppLayout>
           </QueryProvider>
         </ErrorBoundary>
       </body>

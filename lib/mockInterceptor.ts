@@ -70,7 +70,7 @@ export function setupMockInterceptor() {
           if (assessment) {
             // Simulate processing -> completed transition
             if (assessment.status === 'processing' || assessment.status === 'pending') {
-              const creationTime = assessment.createdAt || (assessment as any).created_at;
+              const creationTime = (assessment as any).createdAt || assessment.created_at;
               const timeSinceCreation = Date.now() - new Date(creationTime).getTime();
               if (timeSinceCreation > 15000) { // 15 seconds
                 assessment.status = 'complete'; // the frontend checks for 'complete'
@@ -107,7 +107,7 @@ export function setupMockInterceptor() {
           if (assessment) {
             // Simulate processing -> completed transition
             if (assessment.status === 'processing' || assessment.status === 'pending') {
-              const creationTime = assessment.createdAt || (assessment as any).created_at;
+              const creationTime = (assessment as any).createdAt || assessment.created_at;
               const timeSinceCreation = Date.now() - new Date(creationTime).getTime();
               if (timeSinceCreation > 15000) { // 15 seconds
                 assessment.status = 'complete';
@@ -118,10 +118,10 @@ export function setupMockInterceptor() {
               response: {
                 data: {
                   id: assessment.id,
-                  status: assessment.status === 'completed' ? 'complete' : assessment.status,
+                  status: (assessment.status as any) === 'completed' ? 'complete' : assessment.status,
                   progress_step: 'Running visual analysis',
                   error_message: null,
-                  created_at: assessment.createdAt || (assessment as any).created_at,
+                  created_at: (assessment as any).createdAt || assessment.created_at,
                   updated_at: new Date().toISOString()
                 },
                 status: 200,
@@ -148,7 +148,7 @@ export function setupMockInterceptor() {
           return Promise.reject({
             response: {
               data: {
-                items: assessments.filter(a => a.status === 'completed' || a.status === 'complete'),
+                items: assessments.filter(a => (a.status as any) === 'completed' || a.status === 'complete'),
                 total: assessments.length,
                 page: 1,
                 limit: 10,
