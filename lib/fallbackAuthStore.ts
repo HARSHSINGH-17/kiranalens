@@ -17,6 +17,7 @@ type FallbackAuthStore = {
 const DEMO_USER_EMAIL = 'demo@kiranalens.com';
 const DEMO_USER_PASSWORD_HASH =
   '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeKB./Jmf0T/FiZBO';
+const DEMO_USER_CREATED_AT = '2026-01-01T00:00:00.000Z';
 
 const globalStore = globalThis as typeof globalThis & {
   __fallbackAuthStore?: FallbackAuthStore;
@@ -29,7 +30,7 @@ const demoUser: FallbackUser = {
   organisation: 'KiranaLens Demo',
   password_hash: DEMO_USER_PASSWORD_HASH,
   role: 'credit_officer',
-  created_at: new Date().toISOString(),
+  created_at: DEMO_USER_CREATED_AT,
 };
 
 export function getFallbackAuthStore(): FallbackAuthStore {
